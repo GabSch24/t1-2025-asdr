@@ -4,7 +4,7 @@ $TRACE_ON
         if (c) {
             {
                 while( true )
-                    if (a)  b=1; else b=7; 
+                    if (a)  b=1; else b=7
             }
         } 
         
