@@ -148,6 +148,7 @@ public class AsdrSampleDusGuris {
 ***/ 
 
   private void Prog() {
+      if (debug) System.out.println("Prog --> ListaDecl");
       ListaDecl();
    }
 
@@ -172,7 +173,7 @@ public class AsdrSampleDusGuris {
 
    private void DeclVar() {
       if (laToken == INT || laToken == BOOL || laToken == DOUBLE) {
-         if (debug) System.out.println("DeclVar --> ListaIdent...");
+         if (debug) System.out.println("DeclVar --> ListaIdent");
          Tipo();
          ListaIdent();
          verifica(';');
@@ -199,24 +200,27 @@ public class AsdrSampleDusGuris {
             break;
          default:
             // só pra dar erro
-            verifica(null);
+            verifica("INT ou BOOL ou DOUBLE");
             return;
       }
   }
 
   private void ListaIdent() {
+      if (debug) System.out.printf("ListaIdent --> Ident");
       verifica(IDENT);
       while(laToken == ',')
       {
+         if (debug) System.out.printf(" ,Ident");
          verifica(,);
          verifica(IDENT);
       }
+      if (debug) System.out.println("");
   }
 
   private void DeclFun() {
       if (laToken == FUNC)
       {
-         
+         if (debug) System.out.println("DeclFun --> FUNC TipoOuVoid IDENT( FormalPar ) { DeclVar ListaCmd } DeclFun");
          verifica(FUNC);
          TipoOuVoid();
          verifica(IDENT);
@@ -232,6 +236,7 @@ public class AsdrSampleDusGuris {
       else
       {
          //vazio
+         if (debug) System.out.println("DeclFun --> Vazio");
       }
   }
 
@@ -252,29 +257,33 @@ private void TipoOuVoid() {
             break;
          default:
             // só pra dar erro
-            verifica(null);
+            verifica("INT ou BOOL ou DOUBLE ou VOID");
             return;
       }
   }
 
   private void FormalPar() {
       if (laToken == INT || laToken == BOOL || laToken == DOUBLE) {
+         if (debug) System.out.printf("FormalPar --> Tipo IDENT");
          Tipo();
          verifica(IDENT);
          while(laToken == ',')
          {
+            if (debug) System.out.printf(" ,Ident");
             verifica(,);
             verifica(IDENT);
          }
+         if (debug) System.out.println("");
       }
       else {
          // vazio
+         if (debug) System.out.println("FormalPar --> Vazio");
       }
   }
 
 
   private void Bloco() {
-      if (debug) System.out.println("Bloco --> { Cmd }");
+      if (debug) System.out.println("Bloco --> { ListaCmd }");
       //if (laToken == '{') {
          verifica('{');
          ListaCmd();
@@ -294,6 +303,7 @@ private void TipoOuVoid() {
       // }
       while (laToken == '{' || laToken == WHILE || laToken == IDENT || laToken == IF)
       {
+         if (debug) System.out.println("ListaCmd --> Cmd");
          Cmd();
       }
   }
