@@ -1,13 +1,14 @@
+$TRACE_OFF
 int a;
 double b, c;
 
-FUNC void foo () {
+func void foo () {
     
-    boolean bool 1;
+    boolean bool;
     { { { } } }
 }
-
-FUNC int foo1 (int a, double b) {
+$TRACE_ON
+func int foo1 (int a, double b) {
     c = b;
     while ( c + a / d ) 
         if ( bool ) a = b;

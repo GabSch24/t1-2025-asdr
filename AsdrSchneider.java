@@ -275,8 +275,9 @@ private void TipoOuVoid() {
          verifica(IDENT);
          while(laToken == ',')
          {
-            if (debug) System.out.printf(" , Ident");
+            if (debug) System.out.printf(", Tipo Ident");
             verifica(',');
+            Tipo();
             verifica(IDENT);
          }
          if (debug) System.out.println("");
@@ -500,7 +501,7 @@ private void TipoOuVoid() {
   }
 
   public void setDebug(boolean trace) {
-      debug = true;
+      debug = trace;
   }
 
 
