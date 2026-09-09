@@ -1,6 +1,6 @@
 import java.io.*;
 
-public class AsdrSampleDusGuris {
+public class AsdrSchneider {
 
   private static final int BASE_TOKEN_NUM = 301;
   
@@ -41,7 +41,7 @@ public class AsdrSampleDusGuris {
 
   
   /* construtor da classe */
-  public AsdrSample (Reader r) {
+  public AsdrSchneider (Reader r) {
       lexer = new Yylex (r, this);
   }
 
@@ -134,14 +134,21 @@ public class AsdrSampleDusGuris {
 
   RestoIf -> else Cmd
         |    / vazio /
-  E --> E + T
-      | E - T
-      | T
 
-  T --> T * F
-      | T / F
-      | F    
-      
+ * fatorado: Eliminando a recursão direta à esquerda
+
+  E --> T E'
+  
+  E'--> E + E'
+      | E - E'
+      | / vazio /
+
+  T --> F T'
+
+  T'--> T * T'
+      | T / T'
+      | / vazio / 
+
   F -->  IDENT
       | NUM
       | ( E )
@@ -187,7 +194,7 @@ public class AsdrSampleDusGuris {
   }
 
   private void Tipo() {
-   switch laToken
+   switch (laToken)
       {
          case INT:
             verifica(INT);
@@ -199,8 +206,7 @@ public class AsdrSampleDusGuris {
             verifica(DOUBLE);
             break;
          default:
-            // só pra dar erro
-            verifica("INT ou BOOL ou DOUBLE");
+            yyerror("Esperado INT ou BOOL ou DOUBLE");
             return;
       }
   }
@@ -211,7 +217,7 @@ public class AsdrSampleDusGuris {
       while(laToken == ',')
       {
          if (debug) System.out.printf(" ,Ident");
-         verifica(,);
+         verifica(',');
          verifica(IDENT);
       }
       if (debug) System.out.println("");
@@ -241,7 +247,7 @@ public class AsdrSampleDusGuris {
   }
 
 private void TipoOuVoid() {
-   switch laToken
+   switch (laToken)
       {
          case INT:
             verifica(INT);
@@ -256,21 +262,21 @@ private void TipoOuVoid() {
             verifica(VOID);
             break;
          default:
-            // só pra dar erro
-            verifica("INT ou BOOL ou DOUBLE ou VOID");
+            // só pra dar erro - arrumado pra usar yyerror
+            yyerror("Esperado INT ou BOOL ou DOUBLE ou VOID");
             return;
       }
   }
 
   private void FormalPar() {
       if (laToken == INT || laToken == BOOL || laToken == DOUBLE) {
-         if (debug) System.out.printf("FormalPar --> Tipo IDENT");
+         if (debug) System.out.printf("FormalPar --> Tipo Ident");
          Tipo();
          verifica(IDENT);
          while(laToken == ',')
          {
-            if (debug) System.out.printf(" ,Ident");
-            verifica(,);
+            if (debug) System.out.printf(" , Ident");
+            verifica(',');
             verifica(IDENT);
          }
          if (debug) System.out.println("");
@@ -308,8 +314,6 @@ private void TipoOuVoid() {
       }
   }
 
-// PARAMOS AQUI
-
   private void Cmd() {
       if (laToken == '{') {
          if (debug) System.out.println("Cmd --> Bloco");
@@ -339,73 +343,119 @@ private void TipoOuVoid() {
          Cmd();
          RestoIF();
 	   }
+   // Apenas agora vi que existe esse método e não precisava fazer com o verifica pra lançar erro...
  	else yyerror("Esperado {, if, while ou identificador");
    }
 
 
    private void RestoIF() {
        if (laToken == ELSE) {
-         if (debug) System.out.println("RestoIF --> else Cmd FI ");
+         if (debug) System.out.println("RestoIF --> else Cmd");
          verifica(ELSE);
          Cmd();
-         
     
 	   } else {
-         if (debug) System.out.println("RestoIF -->  (*vazio*)  ");
-         // aceitar como vazio  <-- my way
-         // ou testar o follow de RestoIF
+         if (debug) System.out.println("RestoIF --> Vazio");
          }
      }     
 
+   /*    E --> T E'
+  
+         E'-->   E + E'
+               | E - E'
+               | / vazio /
+   */
    private void E() {
          if (laToken == IDENT || laToken == NUM || laToken == '(') {
-          if (debug) System.out.println("E --> T R");
-         T();
-         R();
+            if (debug) System.out.println("E --> T E'");
+            T();
+            E_linha();
          }
          else yyerror("Esperado operando (, identificador ou numero");
       }
-      
 
-   private void R() {
-      if (laToken == '+') {
-         if (debug) System.out.println("R --> + T R");
-         verifica('+');
-         T();
-         R();
-      }
-      else   if (laToken == '-') {
-         if (debug) System.out.println("R --> - T R");
-         verifica('-');
-         T();
-         R();
-      }
-      else {
-         if (debug) System.out.println("R -->  (*vazio*)  ");
-         // aceitar como vazio  <-- my way
-         // ou testar o follow de R
+   private void E_linha() {
+         if (laToken == IDENT || laToken == NUM || laToken == '(') {
+            if (debug) System.out.println("E --> T E'");
+            E();
+            switch (laToken)
+            {
+               case '+':
+                  verifica('+');
+                  break;
+               case '-':
+                  verifica('-');
+               default:
+                  yyerror("Esperado + ou -");
+                  return;
+            }
+            E_linha(); // É uma recursão na cauda então deve dar pra fazer em laço
          }
-   }  
+         else {
+            if (debug) System.out.println("E' --> Vazio");
+         }
+      }
 
+   /*
+     T --> F T'
 
+     T'--> T * T'
+         | T / T'
+         | / vazio / 
+   */
 
+   private void T() {
+      if (laToken == IDENT || laToken == NUM || laToken == '(') {
+            if (debug) System.out.println("T --> F T'");
+            F();
+            T_linha();
+         }
+         else yyerror("Esperado operando (, identificador ou numero");
+   }
 
-  private void T() {
-      if (laToken == IDENT) {
-         if (debug) System.out.println("T --> IDENT");
-         verifica(IDENT);
-	   }
-      else if (laToken == NUM) {
-         if (debug) System.out.println("T --> NUM");
-         verifica(NUM);
-	   }
-      else if (laToken == '(') {
-         if (debug) System.out.println("T --> ( E )");
-         verifica('(');
-         E();        
-		 verifica(')');
-	   }
- 	else yyerror("Esperado operando (, identificador ou numero");
+   private void T_linha(){
+      if (laToken == IDENT || laToken == NUM || laToken == '(') {
+            if (debug) System.out.println("T' --> ");
+            T();
+            switch (laToken)
+            {
+               case '*':
+                  verifica('*');
+                  break;
+               case '/':
+                  verifica('/');
+               default:
+                  yyerror("Esperado * ou /");
+                  return;
+            }
+            T_linha(); // É uma recursão na cauda então deve dar pra fazer em laço
+         }
+      else {
+         if (debug) System.out.println("T' --> Vazio");
+      }
+   }
+
+   private void F() {
+      switch (laToken)
+      {
+         case IDENT:
+            if (debug) System.out.println("F --> IDENT");
+            verifica(IDENT);
+            break;
+         case NUM:
+            if (debug) System.out.println("F --> NUM");
+            verifica(NUM);
+            break;
+         case '(':
+            if (debug) System.out.println("F --> ( E )");
+            verifica('(');
+            E();
+            verifica(')');
+            break;
+         default:
+            yyerror("Esperado IDENT ou NUM ou ( E )");
+            return;
+      }
    }
 
 
@@ -465,12 +515,12 @@ private void TipoOuVoid() {
    *               the scanner on.
    */
   public static void main(String[] args) {
-     AsdrSample parser = null;
+     AsdrSchneider parser = null;
      try {
          if (args.length == 0)
-            parser = new AsdrSample(new InputStreamReader(System.in));
+            parser = new AsdrSchneider(new InputStreamReader(System.in));
          else 
-            parser = new  AsdrSample( new java.io.FileReader(args[0]));
+            parser = new  AsdrSchneider( new java.io.FileReader(args[0]));
 
           parser.setDebug(false);
           laToken = parser.yylex();          
