@@ -1,4 +1,4 @@
-$TRACE_OFF
+$TRACE_ON
 int a;
 double b, c;
 
@@ -7,7 +7,6 @@ func void foo () {
     boolean bool;
     { { { } } }
 }
-$TRACE_ON
 func int foo1 (int a, double b) {
     c = b;
     while ( c + a / d ) 

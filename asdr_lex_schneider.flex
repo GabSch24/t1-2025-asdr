@@ -33,7 +33,7 @@ WHITE_SPACE_CHAR=[\n\r\ \t\b\012]
 
 [:jletter:][:jletterdigit:]* { return AsdrSchneider.IDENT; }  
 
-[0-9]+(.[0-9]+)* 	{ return AsdrSchneider.NUM; }
+[0-9]+(.[0-9]+)? 	{ return AsdrSchneider.NUM; }
 
 "{" |
 "}" |

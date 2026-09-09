@@ -82,6 +82,7 @@ public class AsdrSchneider {
 
   RestoIf -> else Cmd
         |    / vazio /
+
   E --> E + T
       | E - T
       | T
@@ -139,14 +140,14 @@ public class AsdrSchneider {
 
   E --> T E'
   
-  E'--> E + E'
-      | E - E'
+  E'--> + T E'
+      | - T E'
       | / vazio /
 
   T --> F T'
 
-  T'--> T * T'
-      | T / T'
+  T'--> * F T'
+      | / F T'
       | / vazio / 
 
   F -->  IDENT
@@ -362,8 +363,8 @@ private void TipoOuVoid() {
 
    /*    E --> T E'
   
-         E'-->   E + E'
-               | E - E'
+         E'-->   + T E'
+               | - T E'
                | / vazio /
    */
    private void E() {
@@ -376,16 +377,18 @@ private void TipoOuVoid() {
       }
 
    private void E_linha() {
-         if (laToken == IDENT || laToken == NUM || laToken == '(') {
+         if (laToken == '+' || laToken == '-') {
             if (debug) System.out.println("E --> T E'");
-            E();
             switch (laToken)
             {
                case '+':
                   verifica('+');
+                  T();
                   break;
                case '-':
                   verifica('-');
+                  T();
+                  break;
                default:
                   yyerror("Esperado + ou -");
                   return;
@@ -400,8 +403,8 @@ private void TipoOuVoid() {
    /*
      T --> F T'
 
-     T'--> T * T'
-         | T / T'
+     T'--> * F T'
+         | / F T'
          | / vazio / 
    */
 
@@ -415,16 +418,18 @@ private void TipoOuVoid() {
    }
 
    private void T_linha(){
-      if (laToken == IDENT || laToken == NUM || laToken == '(') {
+      if (laToken == '*' || laToken == '/') {
             if (debug) System.out.println("T' --> ");
-            T();
             switch (laToken)
             {
                case '*':
                   verifica('*');
+                  F();
                   break;
                case '/':
                   verifica('/');
+                  F();
+                  break;
                default:
                   yyerror("Esperado * ou /");
                   return;
