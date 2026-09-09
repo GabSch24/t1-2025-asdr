@@ -216,7 +216,7 @@ public class AsdrSchneider {
       verifica(IDENT);
       while(laToken == ',')
       {
-         if (debug) System.out.printf(" ,Ident");
+         if (debug) System.out.printf(", Ident");
          verifica(',');
          verifica(IDENT);
       }
