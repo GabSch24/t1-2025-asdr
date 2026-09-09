@@ -1,5 +1,11 @@
 import java.io.*;
 
+/*
+Alguns comentários rápidos, apesar de eu (Gabriel Schneider) ter sido o único que escreveu código no repositório,
+discuti assuntos da atividade com o Leo, o Wide, o Marcus e um pouco em aula com o Cadu.
+Envio apenas no meu nome pois sou o único que não esteve na aula com a prova de 2014, mas queria deixar claro que não fiz 100% sozinho.
+ */
+
 public class AsdrSchneider {
 
   private static final int BASE_TOKEN_NUM = 301;
